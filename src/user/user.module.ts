@@ -10,5 +10,6 @@ import { UserService } from './user.service';
   controllers: [],
   providers: [UserService, PrismaService, AuthService],
   imports: [TokensModule, MailModule],
+  exports: [UserService],
 })
 export class UserModule {}

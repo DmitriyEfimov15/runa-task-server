@@ -42,4 +42,16 @@ export class MailService {
       `,
     });
   }
+
+  async sendChangeMailEmail(email: string, code: string) {
+    return this.send({
+      to: email,
+      subject: 'Смена пароля',
+       html: `
+        <h2>Подтверждение смены почтв</h2>
+        <p>Код:</p>
+        <h1>${code}</h1>
+      `,
+    });
+  }
 }

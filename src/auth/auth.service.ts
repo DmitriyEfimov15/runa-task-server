@@ -13,6 +13,9 @@ import { SendRequestToChangePasswordDto } from './dto/sendRequestToChangePasswor
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { RegisterDto } from './dto/register.dto';
 import { valifyPassword } from 'src/validators/password';
+import { RequestChangeEmailDto } from './dto/requestChangeEmail.dto';
+import { UserService } from 'src/user/user.service';
+import { ChangeEmailDto } from './dto/changeEmail.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +23,7 @@ export class AuthService {
     private prismaService: PrismaService,
     private mailService: MailService,
     private tokensService: TokensService,
+    private userServie: UserService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -280,33 +284,91 @@ export class AuthService {
   }
 
   async getProfile(req: TResquestWithTokens, res: Response) {
-    const { accessToken } = req.cookies;
-
-    if (!accessToken) {
-      throw new HttpException('Нет access-токена', HttpStatus.UNAUTHORIZED);
-    }
-
-    let payload: { id: string };
-    try {
-      payload = await this.tokensService.validateToken(accessToken, 'access');
-    } catch {
-      throw new HttpException('Access-токен невалиден', HttpStatus.UNAUTHORIZED);
-    }
-
-    const user = await this.prismaService.user.findUnique({
-      where: { id: payload.id },
-    });
-
-    if (!user) {
-      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-    }
-
+    const user = await this.userServie.getUserByAccessToken(req);
     return res.json({
       statusCode: HttpStatus.OK,
       user: {
         id: user.id,
         email: user.email,
       },
+    });
+  }
+
+  async requestChangeEmail(dto: RequestChangeEmailDto, req: TResquestWithTokens) {
+    const { email: newEmail, currentPassword } = dto;
+
+    const user = await this.userServie.getUserByAccessToken(req);
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Неверный пароль', HttpStatus.BAD_REQUEST);
+    }
+
+    const candidate = await this.prismaService.user.findUnique({
+      where: { email: newEmail },
+    });
+
+    if (candidate) {
+      throw new HttpException('Данная почта занята', HttpStatus.BAD_REQUEST);
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeHash = await bcrypt.hash(code, 10);
+
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 минут
+
+    await this.prismaService.emailChange.upsert({
+      where: { userId: user.id },
+      update: {
+        newEmail,
+        codeHash,
+        expiresAt,
+      },
+      create: {
+        userId: user.id,
+        newEmail,
+        codeHash,
+        expiresAt,
+      },
+    });
+
+    await this.mailService.sendChangeMailEmail(user.email, code);
+
+    return {
+      message: 'Код подтверждения отправлен на новую почту',
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  async changeEmail(dto: ChangeEmailDto, req: TResquestWithTokens, res: Response) {
+    const { code } = dto;
+
+    const user = await this.userServie.getUserByAccessToken(req);
+    const pending = await this.prismaService.emailChange.findUnique({ where: { userId: user.id } });
+
+    if (!pending) {
+      throw new HttpException('Почта для смены не найдена', HttpStatus.NOT_FOUND);
+    }
+
+    if (pending.expiresAt < new Date()) {
+      throw new HttpException('Недействительная смена почты', HttpStatus.BAD_REQUEST);
+    }
+
+    const isCompare = await bcrypt.compare(code, pending.codeHash);
+    if (!isCompare) {
+      throw new HttpException('Неверный код', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { email: pending.newEmail },
+    });
+
+    await this.prismaService.emailChange.delete({ where: { userId: user.id } });
+
+    return res.json({
+      statusCode: HttpStatus.OK,
+      message: 'Почта успешно изменена',
     });
   }
 }

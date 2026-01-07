@@ -8,6 +8,8 @@ import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { SendRequestToChangePasswordDto } from './dto/sendRequestToChangePassword.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RequestChangeEmailDto } from './dto/requestChangeEmail.dto';
+import { ChangeEmailDto } from './dto/changeEmail.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -52,5 +54,17 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: Request, @Res() res: Response) {
     return this.authService.getProfile(req, res);
+  }
+
+  @Post('/request-change-email')
+  @UseGuards(JwtAuthGuard)
+  requestChangeEmail(@Req() req: Request, @Body() dto: RequestChangeEmailDto) {
+    return this.authService.requestChangeEmail(dto, req);
+  }
+
+  @Post('/change-email')
+  @UseGuards(JwtAuthGuard)
+  changeEmail(@Req() req: Request, @Body() dto: ChangeEmailDto, @Res() res: Response) {
+    return this.authService.changeEmail(dto, req, res);
   }
 }

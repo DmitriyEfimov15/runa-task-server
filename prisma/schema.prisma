@@ -8,20 +8,36 @@ datasource db {
 }
 
 model User {
-  id              String          @id @default(uuid())
-  email           String          @unique
+  id              String     @id @default(uuid())
+  email           String     @unique
   password        String
   roles           UserRole[]
-  isEmailVerified Boolean         @default(false) @map("is_email_verified")
-  activationLink  String?         @unique @map("activation_link")
-  activationCode  Int?            @map("activation_code")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  isEmailVerified Boolean    @default(false) @map("is_email_verified")
+  activationLink  String?    @unique @map("activation_link")
+  activationCode  Int?       @map("activation_code")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
-  refreshTokens   RefreshToken[]
-  resetTokens     ResetPassword[] // 👈 one-to-many
+  refreshTokens RefreshToken[]
+  resetTokens   ResetPassword[]
+  emailChange   EmailChange?
 
   @@map("users")
+}
+
+model EmailChange {
+  id         String   @id @default(uuid())
+  userId     String
+  newEmail   String
+  codeHash   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@unique([newEmail])
+  @@map("email_changes")
 }
 
 
@@ -47,17 +63,17 @@ model UserRole {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  token     String
-  deviceInfo String  @map("device_info")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  token      String
+  deviceInfo String   @map("device_info")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@map("refresh_tokens")
   @@unique([userId, deviceInfo])
+  @@map("refresh_tokens")
 }
 
 model ResetPassword {
@@ -66,9 +82,9 @@ model ResetPassword {
   userId     String
   expiresAt  DateTime
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@map("reset_password")
