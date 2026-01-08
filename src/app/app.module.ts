@@ -12,6 +12,7 @@ import { UserModule } from '../user/user.module';
 
 import { AppController } from './app.controller';
 import { InitialSeed } from './initialSeed';
+import { S3Service } from 'src/s3/s3.service';
 
 @Module({
   imports: [UserModule],
@@ -25,6 +26,7 @@ import { InitialSeed } from './initialSeed';
     SmtpMailService,
     ProductionMailService,
     InitialSeed,
+    S3Service,
   ],
 })
 export class AppModule implements OnModuleInit {

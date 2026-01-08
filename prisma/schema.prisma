@@ -11,6 +11,7 @@ model User {
   id              String     @id @default(uuid())
   email           String     @unique
   password        String
+  avatar          String?
   roles           UserRole[]
   isEmailVerified Boolean    @default(false) @map("is_email_verified")
   activationLink  String?    @unique @map("activation_link")
@@ -26,10 +27,10 @@ model User {
 }
 
 model EmailChange {
-  id         String   @id @default(uuid())
-  userId     String
-  newEmail   String
-  codeHash   String
+  id        String   @id @default(uuid())
+  userId    String
+  newEmail  String
+  codeHash  String
   expiresAt DateTime
   createdAt DateTime @default(now())
 
@@ -39,7 +40,6 @@ model EmailChange {
   @@unique([newEmail])
   @@map("email_changes")
 }
-
 
 model Role {
   id        String     @id @default(uuid())

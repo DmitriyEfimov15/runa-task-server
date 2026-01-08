@@ -17,7 +17,8 @@ import { RequestChangeEmailDto } from './dto/requestChangeEmail.dto';
 import { UserService } from 'src/user/user.service';
 import { ChangeEmailDto } from './dto/changeEmail.dto';
 import { ChangePasswordForAuthorizedDto } from './dto/changePasswordForAuthorized.dto';
-import { CLIENT_URL } from 'src/constants/env';
+import { CLIENT_URL, S3_BUCKET_NAME, S3_URL } from 'src/constants/env';
+import { S3Service } from 'src/s3/s3.service';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private mailService: MailService,
     private tokensService: TokensService,
     private userServie: UserService,
+    private s3Service: S3Service,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -287,11 +289,18 @@ export class AuthService {
 
   async getProfile(req: TResquestWithTokens, res: Response) {
     const user = await this.userServie.getUserByAccessToken(req);
+    let avatarUrl: string | null = null;
+
+    if (user.avatar) {
+      avatarUrl = await this.s3Service.getAvatarUrl(user.avatar);
+    }
+
     return res.json({
       statusCode: HttpStatus.OK,
       user: {
         id: user.id,
         email: user.email,
+        avatarUrl,
       },
     });
   }
@@ -398,7 +407,7 @@ export class AuthService {
 
     return res.json({
       statusCode: HttpStatus.OK,
-      message: "Пароль успешно изменен"
-    })
+      message: 'Пароль успешно изменен',
+    });
   }
 }
