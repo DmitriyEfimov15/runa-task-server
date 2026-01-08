@@ -16,6 +16,7 @@ import { valifyPassword } from 'src/validators/password';
 import { RequestChangeEmailDto } from './dto/requestChangeEmail.dto';
 import { UserService } from 'src/user/user.service';
 import { ChangeEmailDto } from './dto/changeEmail.dto';
+import { ChangePasswordForAuthorizedDto } from './dto/changePasswordForAuthorized.dto';
 
 @Injectable()
 export class AuthService {
@@ -370,5 +371,33 @@ export class AuthService {
       statusCode: HttpStatus.OK,
       message: 'Почта успешно изменена',
     });
+  }
+
+  async changePasswordForAuthorized(
+    dto: ChangePasswordForAuthorizedDto,
+    req: TResquestWithTokens,
+    res: Response,
+  ) {
+    const { currentPassword, newPassword } = dto;
+    const user = await this.userServie.getUserByAccessToken(req);
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Неверный пароль', HttpStatus.BAD_REQUEST);
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 7);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: {
+        password: passwordHash,
+      },
+    });
+
+    return res.json({
+      statusCode: HttpStatus.OK,
+      message: "Пароль успешно изменен"
+    })
   }
 }
