@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { Request, Response } from 'express';
 
 import { CreateRefreshTokenDto } from './dto/createRefreshToken.dto';
+import { ACCESS_SECRET_KEY, NODE_ENV, REFRESH_SECRET_KEY } from 'src/constants/env';
 
 @Injectable()
 export class TokensService {
@@ -34,12 +35,12 @@ export class TokensService {
     const payload = this.mapUserToPayload(user);
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.ACCESS_SECRET_KEY,
+      secret: ACCESS_SECRET_KEY,
       expiresIn: '15m',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.REFRESH_SECRET_KEY,
+      secret: REFRESH_SECRET_KEY,
       expiresIn: '30d',
     });
 
@@ -73,7 +74,7 @@ export class TokensService {
   async validateToken(token: string, type: 'access' | 'refresh') {
     try {
       const secret =
-        type === 'access' ? process.env.ACCESS_SECRET_KEY : process.env.REFRESH_SECRET_KEY;
+        type === 'access' ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
       return this.jwtService.verify(token, { secret });
     } catch {
       throw new UnauthorizedException('Token is invalid');
@@ -120,14 +121,14 @@ export class TokensService {
     // Устанавливаем куки
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
     });
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000, // 15 минут
       path: '/',

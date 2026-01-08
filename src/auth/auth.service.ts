@@ -17,6 +17,7 @@ import { RequestChangeEmailDto } from './dto/requestChangeEmail.dto';
 import { UserService } from 'src/user/user.service';
 import { ChangeEmailDto } from './dto/changeEmail.dto';
 import { ChangePasswordForAuthorizedDto } from './dto/changePasswordForAuthorized.dto';
+import { CLIENT_URL } from 'src/constants/env';
 
 @Injectable()
 export class AuthService {
@@ -166,7 +167,7 @@ export class AuthService {
     await this.prismaService.resetPassword.create({
       data: { userId: user.id, resetToken: token, expiresAt },
     });
-    const changeLink = `${process.env.CLIENT_URL}/auth/change-password/${token}`;
+    const changeLink = `${CLIENT_URL}/auth/change-password/${token}`;
 
     await this.mailService.sendChangePasswordEmail(email, changeLink);
 

@@ -3,6 +3,7 @@ import { TSendMailOptions } from 'src/types/mail.types';
 
 import { SmtpMailService } from './smtp.service';
 import { ProductionMailService } from './production.service';
+import { NODE_ENV } from 'src/constants/env';
 
 @Injectable()
 export class MailService {
@@ -12,7 +13,7 @@ export class MailService {
   ) {}
 
   async send(options: TSendMailOptions) {
-    if (process.env.NODE_ENV === 'production') {
+    if (NODE_ENV === 'production') {
       return this.productionService.send(options);
     }
 

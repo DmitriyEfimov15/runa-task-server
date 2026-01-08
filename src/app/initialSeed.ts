@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD } from 'src/constants/env';
 
 @Injectable()
 export class InitialSeed {
@@ -18,8 +19,8 @@ export class InitialSeed {
     }
     console.log('Роли созданы');
 
-    const defaultEmail = process.env.DEFAULT_ADMIN_EMAIL;
-    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+    const defaultEmail = DEFAULT_ADMIN_EMAIL;
+    const defaultPassword = DEFAULT_ADMIN_PASSWORD || 'admin123';
     const hashedPassword = await bcrypt.hash(defaultPassword, 7);
 
     if (!defaultEmail) {
