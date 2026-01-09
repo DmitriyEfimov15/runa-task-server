@@ -1,0 +1,33 @@
+# Node modules локальные — не копируем, ставим через npm ci
+node_modules
+dist
+
+# Локальные конфиги IDE
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Логи
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Сборки и кеши
+.cache
+.tmp
+.DS_Store
+
+# Файлы среды — лучше передавать через Docker secrets / compose
+.env
+.env.local
+.env.development
+.env.test
+.env.production.local
+
+# Документация и лишние файлы
+README.md
+docs/

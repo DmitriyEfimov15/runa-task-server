@@ -1,0 +1,131 @@
+name: Release
+
+on:
+  release:
+    type: [published]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.ref.outputs.tag }}
+      plain_version: ${{ steps.vars.outputs.plain }}
+    environment: release
+    env: 
+      REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
+      REGISTRY_REPO: ${{ secrets.REGISTRY_REPO }}
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve tag/ref
+        id: ref
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.tag }}
+      - name: Compute version from tag
+        id: vars
+        shell: bash
+        run: |
+          set -eu
+          TAG="${{ steps.ref.outputs.tag }}"
+          PLAIN="${TAG#v}"
+          echo "plain=$PLAIN" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker login
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login $REGISTRY_URL -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with: 
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPO }}:${{ steps.vars.outputs.plain }}
+            ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPO }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,ignore-error=true
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: release
+    env:
+      REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
+      REGISTRY_REPO: ${{ secrets.REGISTRY_REPO }}
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+      VERSION: ${{ needs.build-and-push.outputs.plain_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build-and-push.outputs.tag }}
+      
+      - name: Ensure deploy dir exists
+        uses: appleboy/ssh-actions@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            mkdir -p "${{ secrets.DEPLOY_DIR }}"
+      - name: Upload compose & configs
+        uses: appleboy/scp-actions@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'docker-compose.yml,observability/**'
+          target: ${{ secrets.DEPLOY_DIR }}/
+          debug: true
+      - name: Deploy over SSH
+        uses: appleboy/ssh-actions@v1.2.0
+        with: 
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="${{ env.DEPLOY_DIR }}"
+            REGISTRY_URL="${{ env.REGISTRY_URL }}"
+            REGISTRY_REPO="${{ env.REGISTRY_REPO }}"
+            VERSION="${{ needs.build-and-push.outputs.plain_version }}"
+
+            cd "$DEPLOY_DIR"
+
+            IMAGE="${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}"
+
+            echo "REGISTRY_URL=${REGISTRY_URL}" > .deploy.env
+            echo "REGISTRY_REPO=${REGISTRY_REPO}" >> .deploy.env
+            echo "VERSION=${VERSION}" >> .deploy.env
+
+            docker login ${{ env.REGISTRY_URL }} -u ${{ .env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
+            export $(grep -v '^#' .deploy.env | xargs)
+
+            echo "Pulling $IMAGE ..."
+            docker pull "$IMAGE"
+
+            echo "Running DB migrations"
+            docker compose --env-file .deploy.env run --rm migrator
+
+            docker compose --env-file .deploy.env up -d --force-recreate
+
+            echo "Deployed $IMAGE successfully."

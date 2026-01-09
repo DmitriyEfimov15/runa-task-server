@@ -13,9 +13,17 @@ import { UserModule } from '../user/user.module';
 import { AppController } from './app.controller';
 import { InitialSeed } from './initialSeed';
 import { S3Service } from 'src/s3/s3.service';
+import { ConfigModule } from '@nestjs/config';
+import { NODE_ENV } from 'src/constants/env';
 
 @Module({
-  imports: [UserModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: NODE_ENV === 'production' ? '.env.production.local' : '.env.development.local',
+    }),
+    UserModule,
+  ],
   controllers: [AppController, AuthController],
   providers: [
     AuthService,
