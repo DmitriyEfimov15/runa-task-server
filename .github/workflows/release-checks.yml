@@ -51,7 +51,7 @@ jobs:
 
       - name: Check Prisma schema has matching migrations
         run: |
-          DATABASE_URL="$SHADOW_DATABASE_URL" npx prisma migrate diff \
+          npx prisma migrate diff \
             --from-migrations prisma/migrations \
             --to-schema prisma/schema.prisma \
             --exit-code
