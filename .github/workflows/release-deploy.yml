@@ -117,7 +117,7 @@ jobs:
             echo "REGISTRY_REPO=${REGISTRY_REPO}" >> .deploy.env
             echo "VERSION=${VERSION}" >> .deploy.env
 
-            docker login ${{ env.REGISTRY_URL }} -u ${{ .env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
+            docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
             export $(grep -v '^#' .deploy.env | xargs)
 
             echo "Pulling $IMAGE ..."
