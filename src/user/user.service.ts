@@ -75,7 +75,7 @@ export class UserService {
 
     return res.json({
       statusCode: HttpStatus.OK,
-      message: "Аватар успешно изменен"
-    })
+      message: 'Аватар успешно изменен',
+    });
   }
 }

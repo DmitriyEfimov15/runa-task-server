@@ -1,4 +1,4 @@
 export class RequestChangeEmailDto {
-    email: string
-    currentPassword: string
+  email: string;
+  currentPassword: string;
 }

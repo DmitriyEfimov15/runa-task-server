@@ -217,9 +217,9 @@ describe('AuthService', () => {
     it('should throw if reset token not found', async () => {
       (prisma.resetPassword.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.changePassword('token', { newPassword: '123' })).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        service.changePassword({ newPassword: '123', resetToken: 'token' }),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should throw if token expired', async () => {
@@ -229,9 +229,9 @@ describe('AuthService', () => {
         userId: '1',
       });
 
-      await expect(service.changePassword('token', { newPassword: '123' })).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        service.changePassword({ newPassword: '123', resetToken: 'token' }),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should hash password, update user and delete token', async () => {
@@ -241,7 +241,7 @@ describe('AuthService', () => {
         userId: '1',
       });
 
-      await service.changePassword('token', { newPassword: '123456' });
+      await service.changePassword({ newPassword: '123456', resetToken: 'token' });
 
       expect(prisma.user.update).toHaveBeenCalled();
       expect(prisma.resetPassword.delete).toHaveBeenCalled();

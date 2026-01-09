@@ -1,4 +1,4 @@
 export class ChangePasswordForAuthorizedDto {
-    currentPassword: string
-    newPassword: string
+  currentPassword: string;
+  newPassword: string;
 }

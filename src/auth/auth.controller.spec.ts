@@ -114,7 +114,7 @@ describe('AuthController', () => {
       const dto = new ChangePasswordDto();
       dto.newPassword = 'newpass';
 
-      await controller.changePassword('token123', dto);
+      await controller.changePassword(dto);
       expect(authService.changePassword).toHaveBeenCalledWith('token123', dto);
     });
   });

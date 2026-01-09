@@ -73,8 +73,7 @@ export class TokensService {
   // Валидация токена (access или refresh)
   async validateToken(token: string, type: 'access' | 'refresh') {
     try {
-      const secret =
-        type === 'access' ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
+      const secret = type === 'access' ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
       return this.jwtService.verify(token, { secret });
     } catch {
       throw new UnauthorizedException('Token is invalid');

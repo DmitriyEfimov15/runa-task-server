@@ -1,6 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
-import { UNISENDER_API_KEY, UNISENDER_FROM_EMAIL, UNISENDER_FROM_NAME, UNISENDER_LANG } from 'src/constants/env';
+import {
+  UNISENDER_API_KEY,
+  UNISENDER_FROM_EMAIL,
+  UNISENDER_FROM_NAME,
+  UNISENDER_LANG,
+} from 'src/constants/env';
 import { TSendMailOptions } from 'src/types/mail.types';
 
 @Injectable()

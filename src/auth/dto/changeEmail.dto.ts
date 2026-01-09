@@ -1,3 +1,3 @@
 export class ChangeEmailDto {
-    code: string
+  code: string;
 }

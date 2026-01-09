@@ -46,8 +46,8 @@ jobs:
 
       - name: Create shadow database for Prisma
         run: |
-          psql "$POSTGRES_ADMIN_URL" -c 'DROP DATABASE IF EXISTS runa-ci-shadow'
-          psql "$POSTGRES_ADMIN_URL" -c 'CREATE DATABASE runa-ci-shadow'
+          psql "$POSTGRES_ADMIN_URL" -c 'DROP DATABASE IF EXISTS "runa-ci-shadow";'
+          psql "$POSTGRES_ADMIN_URL" -c 'CREATE DATABASE "runa-ci-shadow";'
 
       - name: Check Prisma schema has matching migrations
         run: |
