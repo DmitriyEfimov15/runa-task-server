@@ -218,6 +218,10 @@ export class AuthService {
       where: { id: entry.id },
     });
 
+    await this.prismaService.refreshToken.deleteMany({
+      where: { userId: entry.userId },
+    });
+
     return { statusCode: HttpStatus.OK, message: 'Пароль успешно изменён' };
   }
 
@@ -404,6 +408,13 @@ export class AuthService {
         password: passwordHash,
       },
     });
+
+    await this.prismaService.refreshToken.deleteMany({
+      where: { userId: user.id },
+    });
+
+    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
 
     return res.json({
       statusCode: HttpStatus.OK,
