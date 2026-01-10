@@ -3,7 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 
 import 'dotenv/config';
 import { DATABASE_URL } from './constants/env';
-import { PrismaClient } from 'prisma/generated/prisma/client';
+import { PrismaClient } from 'generated/prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient {

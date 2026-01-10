@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 
 import { CreateRefreshTokenDto } from './dto/createRefreshToken.dto';
 import { ACCESS_SECRET_KEY, NODE_ENV, REFRESH_SECRET_KEY } from 'src/constants/env';
-import { User } from 'prisma/generated/prisma/client';
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class TokensService {

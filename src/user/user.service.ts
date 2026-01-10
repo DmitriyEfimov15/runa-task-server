@@ -7,7 +7,7 @@ import { TokensService } from 'src/tokens/tokens.service';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Service } from 'src/s3/s3.service';
-import { User } from 'prisma/generated/prisma/client';
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class UserService {
