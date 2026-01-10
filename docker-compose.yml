@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    networks: [edge]
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -23,6 +24,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks: [edge]
 
   api:
     image: ${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}
@@ -41,5 +43,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    networks:
+      - edge
 volumes:
   pgdata:
+
+networks:
+  edge:
+    name: 'edge'
