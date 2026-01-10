@@ -18,8 +18,6 @@ jobs:
       REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
       REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Resolve tag/ref
         id: ref
         run: |
