@@ -58,6 +58,9 @@ jobs:
           tags: |
             ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPO }}:${{ steps.vars.outputs.plain }}
             ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPO }}:latest
+          build-args: |
+            DATABASE_URL=postgresql://user:pass@localhost:5432/fake_db
+            SHADOW_DATABASE_URL="postgresql://user:pass@localhost:5432/fake_shadow"
           cache-from: type=gha
           cache-to: type=gha,mode=max,ignore-error=true
 
