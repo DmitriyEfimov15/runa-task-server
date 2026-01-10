@@ -117,22 +117,22 @@ jobs:
 
             IMAGE="${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}"
 
-            echo "REGISTRY_URL=${REGISTRY_URL}" > .env
-            echo "REGISTRY_REPO=${REGISTRY_REPO}" >> .env
-            echo "VERSION=${VERSION}" >> .env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+            echo "REGISTRY_URL=${REGISTRY_URL}" > .deploy.env
+            echo "REGISTRY_REPO=${REGISTRY_REPO}" >> .deploy.env
+            echo "VERSION=${VERSION}" >> .deploy.env
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .deploy.env
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .deploy.env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .deploy.env
 
             docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
-            export $(grep -v '^#' .env | xargs)
+            export $(grep -v '^#' .deploy.env | xargs)
 
             echo "Pulling $IMAGE ..."
             docker pull "$IMAGE"
 
             echo "Running DB migrations"
-            docker compose --env-file .env run --rm migrator
+            docker compose --env-file .deploy.env run --rm migrator
 
-            docker compose --env-file .env up -d --force-recreate
+            docker compose --env-file .deploy.env up -d --force-recreate
 
             echo "Deployed $IMAGE successfully."

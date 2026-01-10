@@ -17,7 +17,7 @@ services:
 
   migrator:
     image: ${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}
-    env_file: [.env]
+    env_file: [.deploy.env]
     command: ["sh", "-c", "npx prisma migrate deploy"]
     restart: "no"
     depends_on:
@@ -26,7 +26,7 @@ services:
 
   api:
     image: ${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}
-    env_file: [.env]
+    env_file: [.deploy.env]
     environment:
       - NODE_ENV=production
       - PORT=8080
