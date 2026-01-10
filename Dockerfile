@@ -9,6 +9,8 @@ RUN apk add --no-cache openssl
 COPY package*.json ./
 RUN npm ci
 
+# Явно копируем всю папку prisma
+COPY prisma ./prisma
 COPY . .
 
 ARG DATABASE_URL
@@ -18,7 +20,6 @@ ENV SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
 
 RUN npx prisma generate
 RUN npm run build
-
 
 # =========================
 # 2. Production stage
