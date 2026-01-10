@@ -125,6 +125,7 @@ jobs:
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .deploy.env
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .deploy.env
             echo "SHADOW_DATABASE_URL=${{ secrets.SHADOW_DATABASE_URL }}" >> .deploy.env
+            echo "DEFAULT_ADMIN_EMAIL=${{ secrets.DEFAULT_ADMIN_EMAIL }}" >> .deploy.env
 
             docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
             export $(grep -v '^#' .deploy.env | xargs)
