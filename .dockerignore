@@ -27,6 +27,7 @@ yarn-error.log*
 .env.development
 .env.test
 .env.production.local
+.deploy.env
 
 # Документация и лишние файлы
 README.md
