@@ -4,10 +4,10 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { TResquestWithTokens } from 'src/types/auth.types';
 import { TokensService } from 'src/tokens/tokens.service';
-import { User } from 'generated/prisma/client';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Service } from 'src/s3/s3.service';
+import { User } from 'prisma/generated/prisma/client';
 
 @Injectable()
 export class UserService {
