@@ -82,7 +82,7 @@ jobs:
           ref: ${{ needs.build-and-push.outputs.tag }}
       
       - name: Ensure deploy dir exists
-        uses: appleboy/ssh-actions@v1.2.0
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -90,7 +90,7 @@ jobs:
           script: |
             mkdir -p "${{ secrets.DEPLOY_DIR }}"
       - name: Upload compose & configs
-        uses: appleboy/scp-actions@v0.1.7
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -99,7 +99,7 @@ jobs:
           target: ${{ secrets.DEPLOY_DIR }}/
           debug: true
       - name: Deploy over SSH
-        uses: appleboy/ssh-actions@v1.2.0
+        uses: appleboy/ssh-action@v1.2.0
         with: 
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
