@@ -133,7 +133,10 @@ jobs:
             docker pull "$IMAGE"
 
             echo "Running DB migrations"
-            docker compose --env-file .deploy.env run --rm migrator
+            docker compose run --rm \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e SHADOW_DATABASE_URL="${{ secrets.SHADOW_DATABASE_URL }}" \
+              migrator
 
             docker compose --env-file .deploy.env up -d --force-recreate
 
