@@ -126,6 +126,15 @@ jobs:
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .deploy.env
             echo "SHADOW_DATABASE_URL=${{ secrets.SHADOW_DATABASE_URL }}" >> .deploy.env
             echo "DEFAULT_ADMIN_EMAIL=${{ secrets.DEFAULT_ADMIN_EMAIL }}" >> .deploy.env
+            echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .deploy.env
+            echo "S3_URL=${{ secrets.S3_URL }}" >> .deploy.env
+            echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> .deploy.env
+            echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> .deploy.env
+            echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .deploy.env
+            echo "UNISENDER_API_KEY=${{ secrets.UNISENDER_API_KEY }}" >> .deploy.env
+            echo "UNISENDER_LANG=${{ secrets.UNISENDER_LANG }}" >> .deploy.env
+            echo "UNISENDER_FROM_EMAIL=${{ secrets.UNISENDER_FROM_EMAIL }}" >> .deploy.env
+            echo "UNISENDER_FROM_NAME=${{ secrets.UNISENDER_FROM_NAME }}" >> .deploy.env
 
             docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
             export $(grep -v '^#' .deploy.env | xargs)

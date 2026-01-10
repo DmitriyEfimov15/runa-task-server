@@ -20,7 +20,10 @@ export class InitialSeed {
     console.log('Роли созданы');
 
     const defaultEmail = DEFAULT_ADMIN_EMAIL;
-    const defaultPassword = DEFAULT_ADMIN_PASSWORD || 'admin123';
+    const defaultPassword = DEFAULT_ADMIN_PASSWORD;
+    if (!defaultPassword) {
+      throw new Error('DEFAULT_ADMIN_PASSWORD должен быть задан в .env');
+    }
     const hashedPassword = await bcrypt.hash(defaultPassword, 7);
 
     if (!defaultEmail) {
