@@ -17,8 +17,7 @@ services:
 
   migrator:
     image: ${REGISTRY_URL}/${REGISTRY_REPO}:${VERSION}
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
+    env_file: [.deploy.env]
     command: ["sh", "-c", "npx prisma migrate deploy"]
     restart: "no"
     depends_on:
