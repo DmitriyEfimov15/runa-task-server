@@ -27,6 +27,7 @@ jobs:
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
             echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          fi
       - name: Checkout tag
         uses: actions/checkout@v4
         with:
