@@ -135,6 +135,8 @@ jobs:
             echo "UNISENDER_LANG=${{ secrets.UNISENDER_LANG }}" >> .deploy.env
             echo "UNISENDER_FROM_EMAIL=${{ secrets.UNISENDER_FROM_EMAIL }}" >> .deploy.env
             echo "UNISENDER_FROM_NAME=${{ secrets.UNISENDER_FROM_NAME }}" >> .deploy.env
+            echo "ACCESS_SECRET_KEY=${{ secrets.ACCESS_SECRET_KEY }}" >> .deploy.env
+            echo "REFRESH_SECRET_KEY=${{ secrets.REFRESH_SECRET_KEY }}" >> .deploy.env
 
             docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} -p ${{ env.REGISTRY_TOKEN }}
             export $(grep -v '^#' .deploy.env | xargs)
