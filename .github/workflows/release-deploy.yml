@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    type: [published]
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -129,10 +129,7 @@ jobs:
             echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> .deploy.env
             echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> .deploy.env
             echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .deploy.env
-            echo "UNISENDER_API_KEY=${{ secrets.UNISENDER_API_KEY }}" >> .deploy.env
-            echo "UNISENDER_LANG=${{ secrets.UNISENDER_LANG }}" >> .deploy.env
-            echo "UNISENDER_FROM_EMAIL=${{ secrets.UNISENDER_FROM_EMAIL }}" >> .deploy.env
-            echo "UNISENDER_FROM_NAME=${{ secrets.UNISENDER_FROM_NAME }}" >> .deploy.env
+            # почта ...
             echo "ACCESS_SECRET_KEY=${{ secrets.ACCESS_SECRET_KEY }}" >> .deploy.env
             echo "REFRESH_SECRET_KEY=${{ secrets.REFRESH_SECRET_KEY }}" >> .deploy.env
             echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .deploy.env

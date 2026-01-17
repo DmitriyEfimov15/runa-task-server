@@ -15,6 +15,7 @@ import { InitialSeed } from './initialSeed';
 import { S3Service } from 'src/s3/s3.service';
 import { ConfigModule } from '@nestjs/config';
 import { NODE_ENV } from 'src/constants/env';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NODE_ENV } from 'src/constants/env';
       isGlobal: true,
       envFilePath: NODE_ENV === 'production' ? '.env.production.local' : '.env.development.local',
     }),
+    ScheduleModule.forRoot(),
     UserModule,
   ],
   controllers: [AppController, AuthController],

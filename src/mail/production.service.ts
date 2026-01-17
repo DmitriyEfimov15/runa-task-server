@@ -1,41 +1,38 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import axios from 'axios';
-import {
-  UNISENDER_API_KEY,
-  UNISENDER_FROM_EMAIL,
-  UNISENDER_FROM_NAME,
-  UNISENDER_LANG,
-} from 'src/constants/env';
+import { Resend, type CreateEmailResponse } from 'resend';
+import { RESEND_API_KEY, RESEND_FROM_EMAIL } from 'src/constants/env';
 import { TSendMailOptions } from 'src/types/mail.types';
 
 @Injectable()
 export class ProductionMailService {
-  private readonly apiKey = UNISENDER_API_KEY;
-  private readonly lang = UNISENDER_LANG || 'ru';
-  private readonly fromEmail = UNISENDER_FROM_EMAIL;
-  private readonly fromName = UNISENDER_FROM_NAME;
+  private readonly resend: Resend;
+  private readonly from: string;
 
-  private get baseUrl() {
-    return `https://api.unisender.com/${this.lang}/api`;
-  }
-
-  async send({ to, subject, html }: TSendMailOptions) {
-    const { data } = await axios.post(`${this.baseUrl}/sendEmail`, null, {
-      params: {
-        format: 'json',
-        api_key: this.apiKey,
-        email: to,
-        sender_email: this.fromEmail,
-        sender_name: this.fromName,
-        subject,
-        body: html,
-      },
-    });
-
-    if (data.error) {
-      throw new InternalServerErrorException(data.error);
+  constructor() {
+    if (!RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not defined');
     }
 
-    return data;
+    if (!RESEND_FROM_EMAIL) {
+      throw new Error('RESEND_FROM_EMAIL is not defined');
+    }
+
+    this.resend = new Resend(RESEND_API_KEY);
+    this.from = RESEND_FROM_EMAIL;
+  }
+
+  async send({ to, subject, html }: TSendMailOptions): Promise<CreateEmailResponse['data']> {
+    const response = await this.resend.emails.send({
+      from: this.from,
+      to,
+      subject,
+      html,
+    });
+
+    if (response.error) {
+      throw new InternalServerErrorException(response.error.message);
+    }
+
+    return response.data;
   }
 }

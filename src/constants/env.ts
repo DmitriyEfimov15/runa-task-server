@@ -24,3 +24,6 @@ export const S3_URL = process.env.S3_URL;
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 export const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY;
 export const S3_SECRET_KEY = process.env.S3_SECRET_KEY;
+
+export const RESEND_API_KEY: string = process.env.RESEND_API_KEY ?? '';
+export const RESEND_FROM_EMAIL: string = process.env.RESEND_FROM_EMAIL ?? '';

@@ -46,7 +46,22 @@ export class AuthService {
       where: { email },
     });
 
-    if (candidate) {
+    if (candidate && !candidate.isEmailVerified) {
+      const passwordHash = await bcrypt.hash(password, 7);
+      const activationCode = Math.floor(100000 + Math.random() * 900000);
+      const activationLink = uuidv4();
+      await this.prismaService.user.update({
+        where: { id: candidate.id },
+        data: { password: passwordHash, activationCode, activationLink },
+      });
+      await this.mailService.sendConfirmEmail(email, activationCode);
+      return {
+        activationLink,
+        statusCode: HttpStatus.OK,
+      };
+    }
+
+    if (candidate && candidate.isEmailVerified) {
       throw new HttpException('Пользователь с такой почтой уже существует', HttpStatus.CONFLICT);
     }
 
